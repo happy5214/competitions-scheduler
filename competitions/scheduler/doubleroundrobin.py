@@ -1,9 +1,11 @@
 """Double round-robin scheduling."""
 
+from __future__ import print_function, unicode_literals
+
 import copy
 import random
 
-from scheduler import Scheduler
+from .scheduler import Scheduler
 
 
 class DoubleRoundRobinScheduler(Scheduler):
@@ -15,12 +17,10 @@ class DoubleRoundRobinScheduler(Scheduler):
         """Generate the matches for the season.
 
         @param teams: The teams to generate matches for
-        @type teams: list or int
+        @type teams: list
         @return: The matches to schedule
         @rtype: list
         """
-        if not isinstance(teams, list):
-            teams = range(1, teams + 1)
         opps = {}
         for team in teams:
             opponents = []
@@ -71,27 +71,23 @@ class DoubleRoundRobinScheduler(Scheduler):
         @rtype: list of lists of tuples
         @raise RuntimeError: Failed to create schedule within limits
         """
-        match_count = 0
-        round_count = 0
         rounds = []
-        if type(teams) != list:
-            match_count = teams / 2
-            round_count = (teams - 1) * 2
-        else:
-            match_count = len(teams) / 2
-            round_count = (len(teams) - 1) * 2
+        if not isinstance(teams, list):
+            teams = list(range(1, teams + 1))
+        match_count = int(len(teams) / 2)
+        round_count = (len(teams) - 1) * 2
         matches = DoubleRoundRobinScheduler.generate_matches(teams)
 
         for x in range(round_count):
-            print 'Generating round %d' % (x + 1)
-            for i in range(10):
+            print('Generating round %d' % (x + 1))
+            for __ in range(10):
                 next_round = DoubleRoundRobinScheduler.generate_round(match_count,
                                                                       matches)
                 if next_round:
                     rounds.append(next_round)
                     break
             else:
-                print 'Error: Could not generate round. Restarting.'
+                print('Error: Could not generate round. Restarting.')
                 if not try_once:
                     return DoubleRoundRobinScheduler.generate_schedule(teams)
                 else:
