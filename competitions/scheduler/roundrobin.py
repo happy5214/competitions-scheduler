@@ -6,6 +6,7 @@ from __future__ import print_function, unicode_literals
 import copy
 import random
 
+from . import ScheduleGenerationFailed
 from .scheduler import Scheduler
 
 
@@ -76,7 +77,7 @@ class RoundRobinScheduler(Scheduler):
                 if not try_once:
                     return self.generate_schedule()
                 else:
-                    raise RuntimeError('Schedule generation failed.')
+                    raise ScheduleGenerationFailed('Schedule generation failed.')
 
         return rounds
 
