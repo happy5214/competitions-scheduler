@@ -1,5 +1,7 @@
 """Base class code for schedulers."""
 
+from __future__ import unicode_literals
+
 
 class Scheduler(object):
 
@@ -43,14 +45,11 @@ class Scheduler(object):
             if possibility:
                 return possibility
 
-    @staticmethod
-    def generate_schedule(teams, try_once=False):
+    def generate_schedule(self, try_once=False):
         """Generate the schedule.
 
         This method must be overridden by subclasses.
 
-        @param teams: A list of teams or the number of teams
-        @type teams: list or int
         @param try_once: Whether to only try once to generate a schedule
         @type try_once: bool
         @return: The generated schedule
