@@ -8,13 +8,13 @@ https://github.com/pypa/sampleproject
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
-from codecs import open
+# from codecs import open
 from os import path
 
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
-#with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+# with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 #    long_description = f.read()
 
 setup(
@@ -23,7 +23,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1b1',
+    version='0.1b2',
 
     description='Generic schedulers for competitions',
 #    long_description=long_description,
@@ -36,7 +36,7 @@ setup(
     author_email='happy5214@gmail.com',
 
     # Choose your license
-    license='GPLv3orlater',
+    license='GPLv3+',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -60,7 +60,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='competitions',
+    keywords='competitions schedules',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().

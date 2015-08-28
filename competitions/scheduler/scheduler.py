@@ -33,7 +33,7 @@ class Scheduler(object):
         @return: The first unique match found
         @rtype: tuple
         @raise IndexError: If no unique match is found
-        """ 
+        """
         while True:
             possibility = rest.pop(0)
             for match in matches:

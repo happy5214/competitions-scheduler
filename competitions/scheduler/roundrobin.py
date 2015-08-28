@@ -8,9 +8,9 @@ import random
 from .scheduler import Scheduler
 
 
-class DoubleRoundRobinScheduler(Scheduler):
+class RoundRobinScheduler(Scheduler):
 
-    """A standard double round-robin scheduler."""
+    """A standard round-robin scheduler."""
 
     def __init__(self, teams):
         """Constructor.
@@ -28,30 +28,6 @@ class DoubleRoundRobinScheduler(Scheduler):
     def match_count(self):
         """The number of matches per round."""
         return int(len(self.teams) / 2)
-
-    @property
-    def round_count(self):
-        """The number of rounds in a season."""
-        return int((len(self.teams) - 1) * 2)
-
-    def generate_matches(self):
-        """Generate the matches for the season.
-
-        @return: The matches to schedule
-        @rtype: list
-        """
-        opps = {}
-        for team in self.teams:
-            opponents = []
-            for opp in self.teams:
-                if team != opp:
-                    opponents.append(opp)
-            opps[team] = opponents
-        matches = []
-        for team in self.teams:
-            for opp in opps[team]:
-                matches.append((team,opp))
-        return matches
 
     def generate_round(self, matches):
         """Generate a round.
@@ -102,3 +78,45 @@ class DoubleRoundRobinScheduler(Scheduler):
                     raise RuntimeError('Schedule generation failed.')
 
         return rounds
+
+
+class DoubleRoundRobinScheduler(RoundRobinScheduler):
+
+    """A standard double round-robin scheduler."""
+
+    @property
+    def round_count(self):
+        """The number of rounds in a season."""
+        return int((len(self.teams) - 1) * 2)
+
+    def generate_matches(self):
+        """Generate the matches for the season.
+
+        @return: The matches to schedule
+        @rtype: list
+        """
+        return [(team, opp)
+                for team in self.teams
+                for opp in self.teams
+                if team != opp]
+
+
+class QuadrupleRoundRobinScheduler(DoubleRoundRobinScheduler):
+
+    """A standard quadruple round-robin scheduler."""
+
+    @property
+    def round_count(self):
+        """The number of rounds in a season."""
+        return int((len(self.teams) - 1) * 4)
+
+    def generate_matches(self):
+        """Generate the matches for the season.
+
+        @return: The matches to schedule
+        @rtype: list
+        """
+        return [(team, opp)
+                for team in self.teams
+                for opp in self.teams
+                if team != opp] * 2
