@@ -3,6 +3,8 @@
 
 from __future__ import unicode_literals
 
+from . import NoMatchFound
+
 
 class Scheduler(object):
 
@@ -35,16 +37,19 @@ class Scheduler(object):
         @type rest: list
         @return: The first unique match found
         @rtype: tuple
-        @raise IndexError: If no unique match is found
+        @raise NoMatchFound: If no unique match is found
         """
-        while True:
-            possibility = rest.pop(0)
-            for match in matches:
-                if Scheduler.matches_share_opponents(match, possibility):
-                    possibility = None
-                    break
-            if possibility:
-                return possibility
+        while True:  # This will exit with the return statement or an error.
+            try:
+                possibility = rest.pop(0)  # Possibly unique match
+                for match in matches:
+                    if Scheduler.matches_share_opponents(match, possibility):
+                        possibility = None  # Match is not unique.
+                        break  # Try again.
+                if possibility:  # No more matches to compare against.
+                    return possibility  # This match is unique.
+            except IndexError:  # We've run out of possibilities.
+                raise NoMatchFound  # Raise exception to caller
 
     def generate_schedule(self, try_once=False):
         """Generate the schedule.

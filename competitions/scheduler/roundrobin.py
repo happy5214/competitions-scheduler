@@ -6,7 +6,7 @@ from __future__ import print_function, unicode_literals
 import copy
 import random
 
-from . import ScheduleGenerationFailed
+from . import NoMatchFound, ScheduleGenerationFailed
 from .scheduler import Scheduler
 
 
@@ -49,7 +49,7 @@ class RoundRobinScheduler(Scheduler):
                 round.append(match)
                 matches.remove(match)
             return round
-        except IndexError:
+        except NoMatchFound:
             matches.extend(round)
             return None
 
