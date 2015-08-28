@@ -1,3 +1,4 @@
+# -*- coding: utf-8  -*-
 """Round-robin scheduling."""
 
 from __future__ import print_function, unicode_literals

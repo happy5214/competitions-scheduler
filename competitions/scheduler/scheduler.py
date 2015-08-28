@@ -1,3 +1,4 @@
+# -*- coding: utf-8  -*-
 """Base class code for schedulers."""
 
 from __future__ import unicode_literals
