@@ -23,7 +23,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1b2',
+    version='0.1b3',
 
     description='Generic schedulers for competitions',
 #    long_description=long_description,
@@ -93,4 +93,6 @@ setup(
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # pip to create the appropriate form of executable for the target platform.
     entry_points={},
+
+    test_suite='tests',
 )
