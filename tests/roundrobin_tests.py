@@ -21,13 +21,13 @@ from __future__ import unicode_literals
 import random
 import sys
 
-from tests import TestCase
+from . import TestCase
 
+from competitions.scheduler import ScheduleGenerationFailed
 from competitions.scheduler.roundrobin import (
     DoubleRoundRobinScheduler,
     QuadrupleRoundRobinScheduler
 )
-from competitions.scheduler import ScheduleGenerationFailed
 
 
 class TestDoubleRoundRobin(TestCase):
