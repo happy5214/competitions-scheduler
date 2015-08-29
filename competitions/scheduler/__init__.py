@@ -1,3 +1,4 @@
+# -*- coding: utf-8  -*-
 """Scheduler package."""
 
 # Copyright (C) 2015 Alexander Jones

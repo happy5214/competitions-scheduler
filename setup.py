@@ -1,7 +1,5 @@
 """A setuptools based setup module."""
 
-from __future__ import unicode_literals
-
 from setuptools import setup, find_packages
 
 from codecs import open
