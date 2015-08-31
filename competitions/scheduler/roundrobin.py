@@ -111,15 +111,13 @@ class RoundRobinScheduler(Scheduler):
         rounds = []
         matches = self.generate_matches()
 
-        for x in range(self.round_count):
-            # print('Generating round %d' % (x + 1))
-            for __ in range(10):
+        for __ in range(self.round_count):
+            for ___ in range(10):
                 next_round = self.generate_round(matches)
                 if next_round:
                     rounds.append(next_round)
                     break
             else:
-                # print('Error: Could not generate round. Restarting.')
                 if not try_once:
                     return self.generate_schedule()
                 else:
@@ -130,7 +128,10 @@ class RoundRobinScheduler(Scheduler):
 
 class DoubleRoundRobinScheduler(RoundRobinScheduler):
 
-    """A standard double round-robin scheduler."""
+    """A standard double round-robin scheduler.
+
+    This is an alias of RoundRobinScheduler, with meetings=2.
+    """
 
     def __init__(self, teams):
         """Constructor.
@@ -143,7 +144,10 @@ class DoubleRoundRobinScheduler(RoundRobinScheduler):
 
 class QuadrupleRoundRobinScheduler(RoundRobinScheduler):
 
-    """A standard quadruple round-robin scheduler."""
+    """A standard quadruple round-robin scheduler.
+
+    This is an alias of RoundRobinScheduler, with meetings=4.
+    """
 
     def __init__(self, teams):
         """Constructor.
