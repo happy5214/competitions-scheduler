@@ -18,14 +18,19 @@
 
 from __future__ import unicode_literals
 
+import sys
 import unittest
+
+
+PY2 = sys.version_info.major == 2
+PY3 = sys.version_info.major == 3
 
 
 class TestCase(unittest.TestCase):
 
     """Subclass of unittest.TestCase."""
 
-    if not hasattr(unittest.TestCase, 'assertCountEqual'):
+    if PY2:
 
         def assertCountEqual(self, *args, **kwargs):
             """Wrapper of assertItemsEqual()."""

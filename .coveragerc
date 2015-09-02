@@ -1,0 +1,16 @@
+[run]
+source =
+    competitions
+    tests
+
+[report]
+exclude_lines =
+    # Default
+    pragma: no cover
+
+    # Disregard testing data dependent of the Python version
+    if PY2:
+    elif PY3:
+
+    # Ignore abstract method declarations
+    raise NotImplementedError

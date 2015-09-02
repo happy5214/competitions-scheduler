@@ -19,9 +19,8 @@
 from __future__ import unicode_literals
 
 import random
-import sys
 
-from . import TestCase
+from . import TestCase, PY2, PY3
 
 from competitions.scheduler import ScheduleGenerationFailed
 from competitions.scheduler.roundrobin import (
@@ -30,9 +29,6 @@ from competitions.scheduler.roundrobin import (
     TripleRoundRobinScheduler,
     QuadrupleRoundRobinScheduler
 )
-
-
-PY2 = sys.version_info.major == 2
 
 
 class TestSingleRoundRobin(TestCase):
@@ -49,7 +45,7 @@ class TestSingleRoundRobin(TestCase):
                 (1, 2), (3, 1), (1, 4),
                 (2, 3), (4, 2), (3, 4)
             ]
-        else:
+        elif PY3:
             expected_matches = [
                 (1, 2), (3, 1), (4, 1),
                 (2, 3), (2, 4), (3, 4)
@@ -66,7 +62,7 @@ class TestSingleRoundRobin(TestCase):
                 (2, 1), (1, 3), (3, 2),
                 (1, None), (None, 2), (None, 3)
             ]
-        else:
+        elif PY3:
             expected_matches = [
                 (1, 2), (3, 1), (2, 3),
                 (1, None), (None, 2), (None, 3)
@@ -88,7 +84,7 @@ class TestSingleRoundRobin(TestCase):
                 (7, 6), (8, 6),
                 (8, 7)
             ]
-        else:
+        elif PY3:
             expected_matches = [
                 (1, 2), (3, 1), (4, 1), (1, 5), (1, 6), (1, 7), (8, 1),
                 (3, 2), (2, 4), (5, 2), (2, 6), (7, 2), (2, 8),
@@ -115,7 +111,7 @@ class TestSingleRoundRobin(TestCase):
                 [True, False, None, True],
                 [False, True, False, None]
             ]
-        else:
+        elif PY3:
             expected_matrix = [
                 [None, True, False, False],
                 [False, None, True, True],
@@ -136,7 +132,7 @@ class TestSingleRoundRobin(TestCase):
                 [False, True, None, False],
                 [False, True, True, None]
             ]
-        else:
+        elif PY3:
             expected_matrix = [
                 [None, True, False, True],
                 [False, None, True, False],
@@ -161,7 +157,7 @@ class TestSingleRoundRobin(TestCase):
                 [False, True, False, False, True, True, None, False],
                 [False, False, False, True, False, True, True, None]
             ]
-        else:
+        elif PY3:
             expected_matrix = [
                 [None, True, False, False, True, True, True, False],
                 [False, None, False, True, False, True, False, True],
@@ -196,7 +192,7 @@ class TestSingleRoundRobin(TestCase):
                 [(7, 6), (2, 3), (4, 8), (1, 5)],
                 [(5, 3), (1, 6), (4, 7), (8, 2)]
             ]
-        else:
+        elif PY3:
             expected_schedule = [
                 [(5, 7), (8, 4), (3, 6), (1, 2)],
                 [(4, 2), (6, 8), (1, 5), (3, 7)],
@@ -285,7 +281,7 @@ class TestDoubleRoundRobin(TestCase):
                 [(7, 1), (5, 2), (6, 4), (8, 3)],
                 [(1, 5), (3, 4), (8, 2), (6, 7)]
             ]
-        else:
+        elif PY3:
             expected_schedule = [
                 [(3, 2), (4, 1), (8, 5), (6, 7)],
                 [(3, 8), (1, 6), (7, 5), (2, 4)],
@@ -322,7 +318,7 @@ class TestTripleRoundRobin(TestCase):
                 (1, 2), (3, 1), (1, 4),
                 (2, 3), (4, 2), (3, 4)
             ]
-        else:
+        elif PY3:
             expected_matches = [
                 (1, 2), (3, 1), (4, 1),
                 (2, 3), (2, 4), (3, 4)
@@ -345,7 +341,7 @@ class TestTripleRoundRobin(TestCase):
                 (2, 1), (1, 3), (3, 2),
                 (1, None), (None, 2), (None, 3)
             ]
-        else:
+        elif PY3:
             expected_matches = [
                 (1, 2), (3, 1), (2, 3),
                 (1, None), (None, 2), (None, 3)
@@ -373,7 +369,7 @@ class TestTripleRoundRobin(TestCase):
                 (7, 6), (8, 6),
                 (8, 7)
             ]
-        else:
+        elif PY3:
             expected_matches = [
                 (1, 2), (3, 1), (4, 1), (1, 5), (1, 6), (1, 7), (8, 1),
                 (3, 2), (2, 4), (5, 2), (2, 6), (7, 2), (2, 8),
@@ -410,7 +406,7 @@ class TestTripleRoundRobin(TestCase):
                 [True, False, None, True],
                 [False, True, False, None]
             ]
-        else:
+        elif PY3:
             expected_matrix = [
                 [None, True, False, False],
                 [False, None, True, True],
@@ -431,7 +427,7 @@ class TestTripleRoundRobin(TestCase):
                 [False, True, None, False],
                 [False, True, True, None]
             ]
-        else:
+        elif PY3:
             expected_matrix = [
                 [None, True, False, True],
                 [False, None, True, False],
@@ -456,7 +452,7 @@ class TestTripleRoundRobin(TestCase):
                 [False, True, False, False, True, True, None, False],
                 [False, False, False, True, False, True, True, None]
             ]
-        else:
+        elif PY3:
             expected_matrix = [
                 [None, True, False, False, True, True, True, False],
                 [False, None, False, True, False, True, False, True],
@@ -505,7 +501,7 @@ class TestTripleRoundRobin(TestCase):
                 [(5, 6), (8, 7), (3, 1), (2, 4)],
                 [(8, 4), (5, 2), (1, 7), (3, 6)]
             ]
-        else:
+        elif PY3:
             expected_schedule = [
                 [(6, 5), (4, 3), (8, 1), (7, 2)],
                 [(7, 4), (6, 2), (8, 5), (3, 1)],
@@ -622,7 +618,7 @@ class TestQuadrupleRoundRobin(TestCase):
                 [(3, 1), (5, 2), (6, 4)],
                 [(2, 3), (6, 5), (1, 4)]
             ]
-        else:
+        elif PY3:
             expected_schedule = [
                 [(6, 2), (5, 4), (3, 1)],
                 [(5, 3), (2, 4), (1, 6)],
