@@ -37,5 +37,7 @@ setup(
 
     packages=find_packages(exclude=['docs', 'tests*']),
 
+    namespace_packages=['competitions'],
+
     test_suite='tests',
 )
