@@ -8,7 +8,12 @@ lists of rounds for competitions when provided a list of teams or a team count.
 Right now, this library supports schedule generation for pure round-robin
 competitions. While special wrappers are provided for round-robin leagues with
 between 1 and 4 meetings between teams, competitions with more meetings
-are possible. Be warned that these higher-level schedules are not tested.
+are possible.
+
+Changes in v0.2.1
+-----------------
+
+- Additional tests for higher-level round-robin schedules.
 
 Changes in v0.2
 ---------------
