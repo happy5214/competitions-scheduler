@@ -187,7 +187,7 @@ class RoundRobinScheduler(Scheduler):
                     break
             else:
                 if not try_once:
-                    return self.generate_schedule()
+                    return self.generate_schedule(home_teams=home_teams)
                 else:
                     raise ScheduleGenerationFailed('Schedule generation failed.')
 
