@@ -10,6 +10,11 @@ competitions. While special wrappers are provided for round-robin leagues with
 between 1 and 4 meetings between teams, competitions with more meetings
 are possible.
 
+Changes in v0.2.2
+-----------------
+
+- More tests
+
 Changes in v0.2.1
 -----------------
 
