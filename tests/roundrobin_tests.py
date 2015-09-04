@@ -247,6 +247,35 @@ class TestSingleRoundRobin(TestCase):
                              ('Wrong schedule created for bypassed '
                               'single round-robin competition'))
 
+    def test_repeated_schedule_generation(self):
+        """Test repeated single round-robin schedule generation."""
+        scheduler = SingleRoundRobinScheduler(8)
+        random.seed(17)
+        if PY2:
+            expected_schedule = [
+                [(7, 5), (3, 6), (2, 1), (4, 8)],
+                [(7, 3), (6, 5), (1, 8), (4, 2)],
+                [(5, 3), (8, 6), (1, 4), (2, 7)],
+                [(1, 6), (5, 2), (7, 8), (3, 4)],
+                [(8, 5), (2, 3), (6, 4), (7, 1)],
+                [(4, 7), (8, 3), (6, 2), (5, 1)],
+                [(6, 7), (2, 8), (3, 1), (4, 5)]
+            ]
+        elif PY3:
+            expected_schedule = [
+                [(8, 7), (1, 6), (3, 5), (4, 2)],
+                [(2, 6), (4, 3), (7, 1), (5, 8)],
+                [(7, 3), (4, 1), (6, 8), (2, 5)],
+                [(7, 4), (3, 1), (5, 6), (8, 2)],
+                [(7, 2), (3, 6), (1, 5), (8, 4)],
+                [(6, 4), (8, 3), (2, 1), (5, 7)],
+                [(2, 3), (6, 7), (5, 4), (1, 8)]
+            ]
+        schedule = scheduler.generate_schedule()
+        self.assertListEqual(expected_schedule, schedule,
+                             ('Wrong schedule created for repeated '
+                              'single round-robin competition'))
+
 
 class TestDoubleRoundRobin(TestCase):
 
@@ -393,6 +422,49 @@ class TestDoubleRoundRobin(TestCase):
         schedule = scheduler.generate_schedule(try_once=True)
         self.assertListEqual(expected_schedule, schedule,
                              ('Wrong schedule created for bypassed '
+                              'double round-robin competition'))
+
+    def test_repeated_schedule_generation(self):
+        """Test repeated double round-robin schedule generation."""
+        scheduler = DoubleRoundRobinScheduler(8)
+        random.seed(5)
+        if PY2:
+            expected_schedule = [
+                [(8, 4), (3, 7), (1, 6), (2, 5)],
+                [(7, 1), (6, 4), (8, 2), (5, 3)],
+                [(1, 8), (2, 4), (7, 6), (3, 5)],
+                [(2, 6), (5, 7), (4, 3), (8, 1)],
+                [(8, 5), (1, 3), (7, 4), (6, 2)],
+                [(2, 7), (4, 8), (5, 1), (3, 6)],
+                [(1, 7), (6, 5), (2, 8), (3, 4)],
+                [(1, 4), (8, 3), (5, 2), (6, 7)],
+                [(2, 3), (4, 1), (6, 8), (7, 5)],
+                [(1, 2), (5, 8), (7, 3), (4, 6)],
+                [(4, 2), (6, 3), (1, 5), (7, 8)],
+                [(4, 5), (8, 7), (3, 2), (6, 1)],
+                [(2, 1), (4, 7), (3, 8), (5, 6)],
+                [(7, 2), (8, 6), (5, 4), (3, 1)]
+            ]
+        elif PY3:
+            expected_schedule = [
+                [(4, 3), (8, 2), (6, 7), (5, 1)],
+                [(5, 6), (2, 4), (3, 8), (1, 7)],
+                [(6, 5), (4, 8), (1, 3), (7, 2)],
+                [(8, 4), (1, 2), (5, 3), (7, 6)],
+                [(8, 5), (2, 3), (7, 1), (4, 6)],
+                [(4, 5), (8, 6), (2, 7), (3, 1)],
+                [(2, 8), (3, 5), (1, 6), (7, 4)],
+                [(6, 2), (1, 8), (3, 4), (7, 5)],
+                [(5, 4), (8, 7), (2, 1), (6, 3)],
+                [(8, 1), (3, 6), (4, 7), (2, 5)],
+                [(4, 1), (5, 2), (7, 3), (6, 8)],
+                [(6, 4), (7, 8), (1, 5), (3, 2)],
+                [(8, 3), (5, 7), (2, 6), (1, 4)],
+                [(5, 8), (3, 7), (6, 1), (4, 2)]
+            ]
+        schedule = scheduler.generate_schedule()
+        self.assertListEqual(expected_schedule, schedule,
+                             ('Wrong schedule created for repeated '
                               'double round-robin competition'))
 
 

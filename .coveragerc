@@ -1,7 +1,6 @@
 [run]
 source =
-    competitions
-    tests
+    competitions.scheduler
 
 [report]
 exclude_lines =
@@ -9,8 +8,8 @@ exclude_lines =
     pragma: no cover
 
     # Disregard testing data dependent of the Python version
-    if PY2:
-    elif PY3:
+    # if PY2:
+    # elif PY3:
 
     # Ignore abstract method declarations
     raise NotImplementedError
