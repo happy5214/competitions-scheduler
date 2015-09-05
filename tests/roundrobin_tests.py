@@ -18,6 +18,7 @@
 
 from __future__ import unicode_literals
 
+import itertools
 import random
 # import unittest
 
@@ -174,6 +175,45 @@ class TestSingleRoundRobin(TestCase):
         self.assertListEqual(expected_matrix, matrix,
                              ('Incorrect matrix generated for single '
                               'round-robin schedule with eight teams.'))
+
+    def test_home_team_matrix_generation(self):
+        """Test single round-robin matrix generation with known home teams."""
+        # Four teams
+        scheduler = SingleRoundRobinScheduler(4)
+        for home_teams in itertools.permutations(scheduler.teams, 2):
+            matrix = scheduler.generate_matrix(home_teams=home_teams)
+            self.assertSequenceEqual(scheduler.home_teams, home_teams,
+                                     'Home teams not stored.')
+            for team in scheduler.teams:
+                index = scheduler.teams.index(team)
+                matrix_row = matrix[index]
+                self.assertIn(None, matrix_row, 'Placeholder not in matrix.')
+                if team in home_teams:
+                    self.assertGreater(matrix_row.count(True),
+                                       matrix_row.count(False),
+                                       'Wrong home/away balance.')
+                else:
+                    self.assertLess(matrix_row.count(True),
+                                    matrix_row.count(False),
+                                    'Wrong home/away balance.')
+        # Three teams
+        scheduler = SingleRoundRobinScheduler(3)
+        for home_teams in itertools.permutations(scheduler.teams, 2):
+            matrix = scheduler.generate_matrix(home_teams=home_teams)
+            self.assertSequenceEqual(scheduler.home_teams, home_teams,
+                                     'Home teams not stored.')
+            for team in scheduler.teams:
+                index = scheduler.teams.index(team)
+                matrix_row = matrix[index]
+                self.assertIn(None, matrix_row, 'Placeholder not in matrix.')
+                if team in home_teams:
+                    self.assertGreater(matrix_row.count(True),
+                                       matrix_row.count(False),
+                                       'Wrong home/away balance.')
+                else:
+                    self.assertLess(matrix_row.count(True),
+                                    matrix_row.count(False),
+                                    'Wrong home/away balance.')
 
     def test_schedule_generation(self):
         """Test single round-robin schedule generation."""
@@ -760,6 +800,63 @@ class TestTripleRoundRobin(TestCase):
                              ('Wrong schedule created for bypassed '
                               'triple round-robin competition'))
 
+    def test_repeated_schedule_generation(self):
+        """Test repeated triple round-robin schedule generation."""
+        scheduler = TripleRoundRobinScheduler(8)
+        random.seed(12)
+        if PY2:
+            expected_schedule = [
+                [(2, 3), (4, 1), (7, 5), (6, 8)],
+                [(2, 1), (8, 7), (6, 3), (5, 4)],
+                [(5, 6), (1, 7), (4, 8), (3, 2)],
+                [(3, 5), (7, 6), (8, 2), (1, 4)],
+                [(5, 7), (3, 6), (4, 2), (8, 1)],
+                [(1, 5), (7, 3), (2, 8), (4, 6)],
+                [(5, 8), (6, 1), (3, 4), (2, 7)],
+                [(3, 6), (8, 4), (7, 1), (2, 5)],
+                [(4, 5), (3, 8), (7, 1), (6, 2)],
+                [(4, 3), (8, 6), (1, 5), (2, 7)],
+                [(7, 6), (4, 2), (8, 3), (5, 1)],
+                [(2, 6), (4, 7), (5, 3), (1, 8)],
+                [(3, 2), (1, 6), (5, 8), (4, 7)],
+                [(3, 7), (6, 1), (2, 4), (8, 5)],
+                [(1, 3), (7, 4), (6, 5), (2, 8)],
+                [(4, 3), (5, 7), (6, 2), (1, 8)],
+                [(8, 3), (7, 2), (6, 5), (4, 1)],
+                [(2, 1), (5, 3), (8, 4), (6, 7)],
+                [(1, 3), (7, 8), (6, 4), (5, 2)],
+                [(2, 5), (7, 8), (3, 1), (6, 4)],
+                [(8, 6), (5, 4), (3, 7), (1, 2)]
+            ]
+        elif PY3:
+            expected_schedule = [
+                [(2, 5), (4, 1), (6, 7), (8, 3)],
+                [(8, 4), (3, 6), (1, 5), (2, 7)],
+                [(3, 2), (8, 5), (4, 1), (7, 6)],
+                [(8, 1), (2, 5), (4, 6), (3, 7)],
+                [(1, 7), (5, 3), (6, 8), (2, 4)],
+                [(7, 2), (3, 6), (8, 1), (5, 4)],
+                [(5, 7), (6, 2), (4, 3), (1, 8)],
+                [(5, 8), (6, 1), (4, 7), (2, 3)],
+                [(3, 1), (2, 4), (7, 8), (5, 6)],
+                [(8, 4), (7, 1), (6, 2), (5, 3)],
+                [(7, 3), (8, 5), (1, 6), (4, 2)],
+                [(5, 6), (7, 4), (3, 1), (8, 2)],
+                [(8, 2), (4, 7), (6, 3), (1, 5)],
+                [(1, 7), (8, 6), (4, 5), (2, 3)],
+                [(7, 8), (1, 4), (2, 6), (3, 5)],
+                [(1, 3), (6, 4), (8, 7), (5, 2)],
+                [(3, 8), (1, 2), (4, 6), (5, 7)],
+                [(5, 1), (2, 8), (3, 4), (6, 7)],
+                [(2, 1), (7, 5), (3, 4), (6, 8)],
+                [(4, 5), (7, 2), (6, 1), (3, 8)],
+                [(6, 5), (7, 3), (4, 8), (1, 2)]
+            ]
+        schedule = scheduler.generate_schedule()
+        self.assertListEqual(expected_schedule, schedule,
+                             ('Wrong schedule created for repeated '
+                              'triple round-robin competition'))
+
 
 class TestQuadrupleRoundRobin(TestCase):
 
@@ -938,6 +1035,61 @@ class TestQuadrupleRoundRobin(TestCase):
         schedule = scheduler.generate_schedule(try_once=True)
         self.assertListEqual(expected_schedule, schedule,
                              ('Wrong schedule created for bypassed '
+                              'quadruple round-robin competition'))
+
+    def test_repeated_schedule_generation(self):
+        """Test repeated quadruple round-robin schedule generation."""
+        scheduler = QuadrupleRoundRobinScheduler(6)
+        random.seed(4)
+        if PY2:
+            expected_schedule = [
+                [(4, 1), (2, 6), (3, 5)],
+                [(5, 2), (3, 6), (1, 4)],
+                [(1, 5), (4, 6), (2, 3)],
+                [(1, 3), (6, 5), (2, 4)],
+                [(6, 2), (3, 4), (5, 1)],
+                [(1, 2), (6, 3), (4, 5)],
+                [(5, 2), (1, 6), (4, 3)],
+                [(6, 1), (4, 2), (5, 3)],
+                [(1, 3), (4, 5), (6, 2)],
+                [(3, 2), (4, 6), (5, 1)],
+                [(2, 6), (4, 3), (1, 5)],
+                [(5, 6), (4, 1), (3, 2)],
+                [(1, 4), (6, 5), (2, 3)],
+                [(5, 6), (3, 1), (4, 2)],
+                [(2, 1), (3, 6), (5, 4)],
+                [(1, 6), (2, 4), (5, 3)],
+                [(6, 3), (2, 1), (5, 4)],
+                [(3, 4), (2, 5), (6, 1)],
+                [(3, 5), (6, 4), (1, 2)],
+                [(3, 1), (2, 5), (6, 4)]
+            ]
+        elif PY3:
+            expected_schedule = [
+                [(4, 6), (3, 2), (1, 5)],
+                [(6, 2), (3, 4), (5, 1)],
+                [(1, 4), (2, 5), (3, 6)],
+                [(3, 1), (4, 2), (6, 5)],
+                [(4, 1), (5, 2), (6, 3)],
+                [(6, 1), (3, 5), (2, 4)],
+                [(1, 3), (6, 2), (4, 5)],
+                [(2, 5), (6, 4), (3, 1)],
+                [(3, 4), (1, 2), (6, 5)],
+                [(2, 3), (1, 6), (4, 5)],
+                [(2, 4), (1, 3), (5, 6)],
+                [(2, 1), (5, 4), (6, 3)],
+                [(6, 4), (2, 1), (5, 3)],
+                [(3, 2), (4, 6), (5, 1)],
+                [(4, 1), (3, 6), (5, 2)],
+                [(5, 6), (4, 3), (1, 2)],
+                [(2, 3), (6, 1), (5, 4)],
+                [(1, 5), (4, 3), (2, 6)],
+                [(2, 6), (3, 5), (1, 4)],
+                [(5, 3), (1, 6), (4, 2)]
+            ]
+        schedule = scheduler.generate_schedule()
+        self.assertListEqual(expected_schedule, schedule,
+                             ('Wrong schedule created for repeated '
                               'quadruple round-robin competition'))
 
 
