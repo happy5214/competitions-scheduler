@@ -12,7 +12,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='competitions-scheduler',
-    version='0.2.2',
+    version='0.2.3',
 
     description='Generic schedulers for competitions',
     long_description=long_description,

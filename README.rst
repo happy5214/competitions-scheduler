@@ -10,8 +10,14 @@ competitions. While special wrappers are provided for round-robin leagues with
 between 1 and 4 meetings between teams, competitions with more meetings
 are possible.
 
-Changes in v0.2.2
------------------
+There will be a v0.3, but I don't know what should be in it. Should I clone
+scheduling formulas from real sports leagues? Do you want knockout cups, playoffs,
+or more predictable round-robin scheduling? I won't know unless you tell me.
+Open feature requests on this project's GitHub repo and tell me what you want to
+see in version 0.3!
+
+Changes in v0.2.2 and v0.2.3
+----------------------------
 
 - More tests
 
