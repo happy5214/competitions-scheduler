@@ -16,10 +16,15 @@ or more predictable round-robin scheduling? I won't know unless you tell me.
 Open feature requests on this project's GitHub repo and tell me what you want to
 see in version 0.3!
 
+Changes in v0.2.4
+-----------------
+
+- Reorganized and re-implemented several tests. 
+
 Changes in v0.2.2 and v0.2.3
 ----------------------------
 
-- More tests
+- More tests.
 
 Changes in v0.2.1
 -----------------
