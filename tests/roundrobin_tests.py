@@ -18,6 +18,7 @@
 
 from __future__ import unicode_literals
 
+import collections
 import itertools
 import random
 # import unittest
@@ -64,6 +65,8 @@ class TestOddRoundRobin(TestCase):
                                 known_home_teams=None):
         """Test odd-numbered round-robin matrix generation."""
         scheduler = RoundRobinScheduler(teams, meetings=meetings)
+        self.assertSequenceEqual(scheduler.home_teams, (),
+                                 'Default home teams not returned.')
         matrix = scheduler.generate_matrix(home_teams=known_home_teams)
         if known_home_teams:
             self.assertSequenceEqual(known_home_teams, scheduler.home_teams,
@@ -105,8 +108,8 @@ class TestOddRoundRobin(TestCase):
 
     def test_matrix_generation(self):
         """Test odd-numbered round-robin matrix generation."""
-        team_counts = list(range(3, 21))
-        meeting_counts = [1, 3, 5, 7, 9, 2, 4]
+        team_counts = range(3, 21)
+        meeting_counts = (1, 3, 5, 7, 9, 2, 4)
         for teams in team_counts:
             for meetings in meeting_counts:
                 self._test_matrix_generation(meetings, teams)
@@ -119,6 +122,76 @@ class TestOddRoundRobin(TestCase):
                     half += 1
                 for home_teams in itertools.permutations(team_list, half):
                     self._test_matrix_generation(meetings, teams, home_teams)
+
+    def _test_match_generation(self, teams, evens=0, known_home_teams=None):
+        """Test odd-numbered round-robin match generation."""
+        meetings = 2 * evens + 1
+        team_list = list(range(1, teams + 1))
+        scheduler = RoundRobinScheduler(teams, meetings=meetings)
+        self.assertSequenceEqual(scheduler.home_teams, (),
+                                 'Default home teams not returned.')
+        matches = scheduler.generate_matches(home_teams=known_home_teams)
+        if known_home_teams:
+            self.assertSequenceEqual(known_home_teams, scheduler.home_teams,
+                                     'Home teams not stored.')
+
+        homes = [match[0] for match in matches]
+        aways = [match[1] for match in matches]
+        home_teams = 0
+        away_teams = 0
+        odd_teams = teams % 2 == 1
+        if odd_teams:
+            teams += 1
+            team_list.append(None)
+
+        more_matches = evens * (teams - 1) + int(teams / 2)
+        less_matches = more_matches - 1
+
+        home_match_counts = collections.Counter(homes)
+        away_match_counts = collections.Counter(aways)
+        for team in team_list:
+            home_count = home_match_counts[team]
+            away_count = away_match_counts[team]
+            self.assertTrue((home_count == more_matches or
+                             home_count == less_matches),
+                            'Team has an illegal number of home matches.')
+            self.assertTrue((away_count == more_matches or
+                             away_count == less_matches),
+                            'Team has an illegal number of away matches.')
+            if home_count == more_matches:
+                if known_home_teams:
+                    self.assertIn(team, known_home_teams,
+                                  'Home team designation violated.')
+                self.assertEqual(away_count, less_matches,
+                                 'Wrong number of away matches.')
+                home_teams += 1
+            else:
+                if known_home_teams:
+                    self.assertNotIn(team, known_home_teams,
+                                     'Away team designation violated.')
+                self.assertEqual(away_count, more_matches,
+                                 'Wrong number of away matches.')
+                away_teams += 1
+
+        self.assertEqual(home_teams, away_teams,
+                         'Home and away team counts not balanced.')
+
+    def test_match_generation(self):
+        """Test odd-numbered round-robin match generation."""
+        team_counts = range(3, 21)
+        even_counts = range(0, 5)
+        for teams in team_counts:
+            for evens in even_counts:
+                self._test_match_generation(teams, evens)
+                if teams > 8:
+                    continue
+                team_list = list(range(1, teams + 1))
+                half = int(teams / 2)
+                if teams % 2 == 1:
+                    team_list.append(None)
+                    half += 1
+                for home_teams in itertools.permutations(team_list, half):
+                    self._test_match_generation(teams, evens, home_teams)
 
 
 class TestRoundRobinWrappers(TestCase):
@@ -161,70 +234,6 @@ class TestRoundRobinWrappers(TestCase):
 class TestSingleRoundRobin(TestCase):
 
     """Tests for single round-robin scheduling."""
-
-    def test_match_generation(self):
-        """Test single round-robin match generation."""
-        # Four teams
-        random.seed(1)
-        scheduler = SingleRoundRobinScheduler(4)
-        if PY2:
-            expected_matches = [
-                (1, 2), (3, 1), (1, 4),
-                (2, 3), (4, 2), (3, 4)
-            ]
-        elif PY3:
-            expected_matches = [
-                (1, 2), (3, 1), (4, 1),
-                (2, 3), (2, 4), (3, 4)
-            ]
-        matches = scheduler.generate_matches()
-        self.assertCountEqual(expected_matches, matches,
-                              ('Incorrect matches generated for single '
-                               'round-robin schedule with four teams.'))
-        # Three teams
-        random.seed(1)
-        scheduler = SingleRoundRobinScheduler(3)
-        if PY2:
-            expected_matches = [
-                (2, 1), (1, 3), (3, 2),
-                (1, None), (None, 2), (None, 3)
-            ]
-        elif PY3:
-            expected_matches = [
-                (1, 2), (3, 1), (2, 3),
-                (1, None), (None, 2), (None, 3)
-            ]
-        matches = scheduler.generate_matches()
-        self.assertCountEqual(expected_matches, matches,
-                              ('Incorrect matches generated for single '
-                               'round-robin schedule with three teams.'))
-        # Eight teams
-        random.seed(1)
-        scheduler = SingleRoundRobinScheduler(8)
-        if PY2:
-            expected_matches = [
-                (1, 2), (3, 1), (4, 1), (1, 5), (6, 1), (1, 7), (1, 8),
-                (2, 3), (2, 4), (5, 2), (6, 2), (7, 2), (2, 8),
-                (4, 3), (5, 3), (3, 6), (3, 7), (3, 8),
-                (5, 4), (4, 6), (4, 7), (8, 4),
-                (6, 5), (7, 5), (5, 8),
-                (7, 6), (8, 6),
-                (8, 7)
-            ]
-        elif PY3:
-            expected_matches = [
-                (1, 2), (3, 1), (4, 1), (1, 5), (1, 6), (1, 7), (8, 1),
-                (3, 2), (2, 4), (5, 2), (2, 6), (7, 2), (2, 8),
-                (3, 4), (5, 3), (6, 3), (3, 7), (8, 3),
-                (4, 5), (4, 6), (7, 4), (8, 4),
-                (5, 6), (5, 7), (8, 5),
-                (6, 7), (6, 8),
-                (7, 8)
-            ]
-        matches = scheduler.generate_matches()
-        self.assertCountEqual(expected_matches, matches,
-                              ('Incorrect matches generated for single '
-                               'round-robin schedule with eight teams.'))
 
     def test_schedule_generation(self):
         """Test single round-robin schedule generation."""
@@ -389,92 +398,6 @@ class TestDoubleRoundRobin(TestCase):
 class TestTripleRoundRobin(TestCase):
 
     """Tests for triple round-robin scheduling."""
-
-    def test_match_generation(self):
-        """Test triple round-robin match generation."""
-        # Four teams
-        random.seed(1)
-        scheduler = TripleRoundRobinScheduler(4)
-        if PY2:
-            expected_matches = [
-                (1, 2), (3, 1), (1, 4),
-                (2, 3), (4, 2), (3, 4)
-            ]
-        elif PY3:
-            expected_matches = [
-                (1, 2), (3, 1), (4, 1),
-                (2, 3), (2, 4), (3, 4)
-            ]
-        expected_matches.extend([
-            (1, 2), (1, 3), (1, 4),
-            (2, 1), (2, 3), (2, 4),
-            (3, 1), (3, 2), (3, 4),
-            (4, 1), (4, 2), (4, 3)
-        ])
-        matches = scheduler.generate_matches()
-        self.assertCountEqual(expected_matches, matches,
-                              ('Incorrect matches generated for triple '
-                               'round-robin schedule with four teams.'))
-        # Three teams
-        random.seed(1)
-        scheduler = TripleRoundRobinScheduler(3)
-        if PY2:
-            expected_matches = [
-                (2, 1), (1, 3), (3, 2),
-                (1, None), (None, 2), (None, 3)
-            ]
-        elif PY3:
-            expected_matches = [
-                (1, 2), (3, 1), (2, 3),
-                (1, None), (None, 2), (None, 3)
-            ]
-        expected_matches.extend([
-            (1, 2), (1, 3), (1, None),
-            (2, 1), (2, 3), (2, None),
-            (3, 1), (3, 2), (3, None),
-            (None, 1), (None, 2), (None, 3)
-        ])
-        matches = scheduler.generate_matches()
-        self.assertCountEqual(expected_matches, matches,
-                              ('Incorrect matches generated for triple '
-                               'round-robin schedule with three teams.'))
-        # Eight teams
-        random.seed(1)
-        scheduler = TripleRoundRobinScheduler(8)
-        if PY2:
-            expected_matches = [
-                (1, 2), (3, 1), (4, 1), (1, 5), (6, 1), (1, 7), (1, 8),
-                (2, 3), (2, 4), (5, 2), (6, 2), (7, 2), (2, 8),
-                (4, 3), (5, 3), (3, 6), (3, 7), (3, 8),
-                (5, 4), (4, 6), (4, 7), (8, 4),
-                (6, 5), (7, 5), (5, 8),
-                (7, 6), (8, 6),
-                (8, 7)
-            ]
-        elif PY3:
-            expected_matches = [
-                (1, 2), (3, 1), (4, 1), (1, 5), (1, 6), (1, 7), (8, 1),
-                (3, 2), (2, 4), (5, 2), (2, 6), (7, 2), (2, 8),
-                (3, 4), (5, 3), (6, 3), (3, 7), (8, 3),
-                (4, 5), (4, 6), (7, 4), (8, 4),
-                (5, 6), (5, 7), (8, 5),
-                (6, 7), (6, 8),
-                (7, 8)
-            ]
-        expected_matches.extend([
-            (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
-            (2, 1), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8),
-            (3, 1), (3, 2), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8),
-            (4, 1), (4, 2), (4, 3), (4, 5), (4, 6), (4, 7), (4, 8),
-            (5, 1), (5, 2), (5, 3), (5, 4), (5, 6), (5, 7), (5, 8),
-            (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 7), (6, 8),
-            (7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 8),
-            (8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 6), (8, 7)
-        ])
-        matches = scheduler.generate_matches()
-        self.assertCountEqual(expected_matches, matches,
-                              ('Incorrect matches generated for triple '
-                               'round-robin schedule with eight teams.'))
 
     def test_schedule_generation(self):
         """Test triple round-robin schedule generation."""
@@ -719,92 +642,6 @@ class TestQuadrupleRoundRobin(TestCase):
 class TestQuintupleRoundRobin(TestCase):
 
     """Tests for quintuple round-robin scheduling."""
-
-    def test_match_generation(self):
-        """Test quintuple round-robin match generation."""
-        # Four teams
-        random.seed(1)
-        scheduler = RoundRobinScheduler(4, meetings=5)
-        if PY2:
-            expected_matches = [
-                (1, 2), (3, 1), (1, 4),
-                (2, 3), (4, 2), (3, 4)
-            ]
-        elif PY3:
-            expected_matches = [
-                (1, 2), (3, 1), (4, 1),
-                (2, 3), (2, 4), (3, 4)
-            ]
-        expected_matches.extend([
-            (1, 2), (1, 3), (1, 4),
-            (2, 1), (2, 3), (2, 4),
-            (3, 1), (3, 2), (3, 4),
-            (4, 1), (4, 2), (4, 3)
-        ] * 2)
-        matches = scheduler.generate_matches()
-        self.assertCountEqual(expected_matches, matches,
-                              ('Incorrect matches generated for quintuple '
-                               'round-robin schedule with four teams.'))
-        # Three teams
-        random.seed(1)
-        scheduler = RoundRobinScheduler(3, meetings=5)
-        if PY2:
-            expected_matches = [
-                (2, 1), (1, 3), (3, 2),
-                (1, None), (None, 2), (None, 3)
-            ]
-        elif PY3:
-            expected_matches = [
-                (1, 2), (3, 1), (2, 3),
-                (1, None), (None, 2), (None, 3)
-            ]
-        expected_matches.extend([
-            (1, 2), (1, 3), (1, None),
-            (2, 1), (2, 3), (2, None),
-            (3, 1), (3, 2), (3, None),
-            (None, 1), (None, 2), (None, 3)
-        ] * 2)
-        matches = scheduler.generate_matches()
-        self.assertCountEqual(expected_matches, matches,
-                              ('Incorrect matches generated for quintuple '
-                               'round-robin schedule with three teams.'))
-        # Eight teams
-        random.seed(1)
-        scheduler = RoundRobinScheduler(8, meetings=5)
-        if PY2:
-            expected_matches = [
-                (1, 2), (3, 1), (4, 1), (1, 5), (6, 1), (1, 7), (1, 8),
-                (2, 3), (2, 4), (5, 2), (6, 2), (7, 2), (2, 8),
-                (4, 3), (5, 3), (3, 6), (3, 7), (3, 8),
-                (5, 4), (4, 6), (4, 7), (8, 4),
-                (6, 5), (7, 5), (5, 8),
-                (7, 6), (8, 6),
-                (8, 7)
-            ]
-        elif PY3:
-            expected_matches = [
-                (1, 2), (3, 1), (4, 1), (1, 5), (1, 6), (1, 7), (8, 1),
-                (3, 2), (2, 4), (5, 2), (2, 6), (7, 2), (2, 8),
-                (3, 4), (5, 3), (6, 3), (3, 7), (8, 3),
-                (4, 5), (4, 6), (7, 4), (8, 4),
-                (5, 6), (5, 7), (8, 5),
-                (6, 7), (6, 8),
-                (7, 8)
-            ]
-        expected_matches.extend([
-            (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
-            (2, 1), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8),
-            (3, 1), (3, 2), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8),
-            (4, 1), (4, 2), (4, 3), (4, 5), (4, 6), (4, 7), (4, 8),
-            (5, 1), (5, 2), (5, 3), (5, 4), (5, 6), (5, 7), (5, 8),
-            (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 7), (6, 8),
-            (7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 8),
-            (8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 6), (8, 7)
-        ] * 2)
-        matches = scheduler.generate_matches()
-        self.assertCountEqual(expected_matches, matches,
-                              ('Incorrect matches generated for quintuple '
-                               'round-robin schedule with eight teams.'))
 
     def test_schedule_generation(self):
         """Test quintuple round-robin schedule generation."""
