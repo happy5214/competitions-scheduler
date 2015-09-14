@@ -16,25 +16,24 @@ or more predictable round-robin scheduling? I won't know unless you tell me.
 Open feature requests on this project's GitHub repo and tell me what you want to
 see in version 0.3!
 
-Changes in v0.2.4 and v0.2.5
-----------------------------
-
-- Reorganized and re-implemented several tests. 
-
-Changes in v0.2.2 and v0.2.3
-----------------------------
-
-- More tests.
-
-Changes in v0.2.1
------------------
-
-- Additional tests for higher-level round-robin schedules.
-
 Changes in v0.2
 ---------------
 
 - Standard round-robin schedulers for leagues with odd numbers of meetings.
+
+Later changes in the v0.2 series
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- v0.2.1 added tests for higher-level round-robin schedules.
+- v0.2.2 and v0.2.3 added additional tests.
+- v0.2.4 rewrote the odd-numbered matrix generation and even-numbered match
+  generation tests.
+- v0.2.5 rewrote the odd-numbered match generation test.
+
+Changes in v0.1
+---------------
+
+- Even-numbered standard round-robin schedulers.
 
 .. image:: https://travis-ci.org/happy5214/competitions-scheduler.svg?branch=master
     :alt: Build status
