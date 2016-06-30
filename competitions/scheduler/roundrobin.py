@@ -130,7 +130,8 @@ class RoundRobinScheduler(Scheduler):
                        if team != opp] * evens
         else:
             matches = []
-        # TODO: Odd meetings
+
+        # Odd meetings
         if is_odd:
             matrix = self.generate_matrix(home_teams=home_teams)
             odd_matches = []
