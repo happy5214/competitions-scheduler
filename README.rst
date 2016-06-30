@@ -41,3 +41,6 @@ Changes in v0.1
 .. image:: https://coveralls.io/repos/happy5214/competitions-scheduler/badge.svg?branch=master&service=github
     :alt: Coverage status
     :target: https://coveralls.io/github/happy5214/competitions-scheduler?branch=master
+.. image:: https://codeclimate.com/github/happy5214/competitions-scheduler/badges/gpa.svg
+    :target: https://codeclimate.com/github/happy5214/competitions-scheduler
+    :alt: Code Climate
