@@ -62,53 +62,76 @@ class RoundRobinScheduler(Scheduler):
         else:
             return ()
 
-    def generate_matrix(self, home_teams=None):
-        """Generate a schedule matrix for odd meeting counts."""
-        team_count = len(self.teams)
-        odd_team_count = None in self.teams
-        if not home_teams:
+    def _generate_home_teams(self, home_teams=None):
+        """Generate the list of home teams for a matrix."""
+        team_count = len(self.teams)  # Number of teams
+        odd_team_count = None in self.teams  # Whether there is a blank placeholder
+
+        if not home_teams:  # Randomly select home teams
             if odd_team_count:
-                home_count = int((team_count - 1) / 2)
+                home_count = (team_count - 1) // 2
                 homes = random.sample(range(team_count - 1), home_count)
-                homes.append(team_count - 1)
+                homes.append(team_count - 1)  # Spacer is always home
             else:
-                home_count = int(team_count / 2)
+                home_count = team_count // 2
                 homes = random.sample(range(team_count), home_count)
             self._home_teams = [self.teams[i] for i in homes]
-        else:
+        else:  # if home_teams. Use provided teams.
             self._home_teams = home_teams
             homes = [self.teams.index(home) for home in home_teams]
-        home_per_home = int(team_count / 2)
-        home_per_away = int((team_count - 1) / 2)
+
+        return homes
+
+    def generate_matrix(self, home_teams=None):
+        """Generate a schedule matrix for odd meeting counts."""
+        team_count = len(self.teams)  # Number of teams
+        home_at_home = team_count // 2  # "Home" teams have ceiling(half) of their matches at home
+        away_at_home = (team_count - 1) // 2  # "Away" teams have floor(half) at home
+        odd_team_count = None in self.teams  # Whether there is a blank placeholder
+        homes = self._generate_home_teams(home_teams)
         matrix = [[None] * team_count for __ in range(team_count)]
         for i in range(team_count - 1):
-            home_team = i in homes
-            home_count = (home_per_away
-                          if not home_team or odd_team_count else home_per_home)
-            for x in range(i):
-                if matrix[i][x]:
-                    home_count -= 1
+            home_team = i in homes  # Whether the team is a home team
+            home_count = (away_at_home
+                          if not home_team or odd_team_count else home_at_home)
+            home_count -= matrix[i].count(True)  # Check previously assigned match pairings
             try:
                 if odd_team_count:
-                    home_opps = random.sample([x for x in range(i + 1,
-                                                                team_count - 1)],
+                    home_opps = random.sample(list(range(i + 1, team_count - 1)),
                                               home_count)
                     if home_team:
                         home_opps.append(team_count - 1)
                 else:
-                    home_opps = random.sample([x for x in range(i + 1,
-                                                                team_count)],
+                    home_opps = random.sample(list(range(i + 1, team_count)),
                                               home_count)
                 for opp in range(i + 1, team_count):
-                    if opp in home_opps:
-                        matrix[i][opp] = True
-                        matrix[opp][i] = False
-                    else:
-                        matrix[i][opp] = False
-                        matrix[opp][i] = True
-            except ValueError:
+                    is_home = opp in home_opps
+                    matrix[i][opp] = is_home
+                    matrix[opp][i] = not is_home
+            except ValueError:  # Recurse
                 return self.generate_matrix(home_teams=home_teams)
         return matrix
+
+    def _generate_even_matches(self, evens):
+        """Generate a list of matches for even meeting counts."""
+        return [(team, opp)
+                for team in self.teams
+                for opp in self.teams
+                if team != opp] * evens
+
+    def _generate_odd_matches(self, home_teams=None):
+        """Generate a list of matches for odd meeting counts."""
+        matrix = self.generate_matrix(home_teams=home_teams)
+        matches = []
+        for team_idx in range(len(self.teams)):
+            for opp_idx in range(team_idx + 1, len(self.teams)):
+                if matrix[team_idx][opp_idx]:
+                    matches.append((self.teams[team_idx],
+                                    self.teams[opp_idx]))
+                else:
+                    matches.append((self.teams[opp_idx],
+                                    self.teams[team_idx]))
+        return matches
 
     def generate_matches(self, home_teams=None):
         """Generate the matches for the season.
@@ -117,33 +140,12 @@ class RoundRobinScheduler(Scheduler):
         @rtype: list
         """
         is_odd = self.meetings % 2 == 1
-        if is_odd:
-            evens = int((self.meetings - 1) / 2)
-        else:
-            evens = int(self.meetings / 2)
+        evens = self.meetings // 2
 
-        # Even meetings
-        if evens > 0:
-            matches = [(team, opp)
-                       for team in self.teams
-                       for opp in self.teams
-                       if team != opp] * evens
-        else:
-            matches = []
-
-        # Odd meetings
+        matches = self._generate_even_matches(evens) if evens > 0 else []
         if is_odd:
-            matrix = self.generate_matrix(home_teams=home_teams)
-            odd_matches = []
-            for team_idx in range(len(self.teams)):
-                for opp_idx in range(team_idx + 1, len(self.teams)):
-                    if matrix[team_idx][opp_idx]:
-                        odd_matches.append((self.teams[team_idx],
-                                            self.teams[opp_idx]))
-                    else:
-                        odd_matches.append((self.teams[opp_idx],
-                                            self.teams[team_idx]))
-            matches.extend(odd_matches)
+            matches.extend(self._generate_odd_matches(home_teams))
+
         return matches
 
     def generate_round(self, matches):
@@ -168,6 +170,15 @@ class RoundRobinScheduler(Scheduler):
             matches.extend(round)
             return None
 
+    def _generate_schedule_round(self, matches):
+        """Fully generate a round for a schedule."""
+        for ___ in range(10):
+            next_round = self.generate_round(matches)
+            if next_round:
+                return next_round
+        else:
+            raise ScheduleGenerationFailed('Schedule generation failed.')
+
     def generate_schedule(self, try_once=False, home_teams=None):
         """Generate the schedule.
 
@@ -180,17 +191,14 @@ class RoundRobinScheduler(Scheduler):
         rounds = []
         matches = self.generate_matches(home_teams=home_teams)
 
-        for __ in range(self.round_count):
-            for ___ in range(10):
-                next_round = self.generate_round(matches)
-                if next_round:
-                    rounds.append(next_round)
-                    break
+        try:
+            for __ in range(self.round_count):
+                rounds.append(self._generate_schedule_round(matches))
+        except ScheduleGenerationFailed as ex:
+            if try_once:
+                raise ex
             else:
-                if not try_once:
-                    return self.generate_schedule(home_teams=home_teams)
-                else:
-                    raise ScheduleGenerationFailed('Schedule generation failed.')
+                return self.generate_schedule(try_once, home_teams)
 
         return rounds
 
